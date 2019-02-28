@@ -28,3 +28,5 @@ models/openface/*.pkl
 celeb-classifier*
 
 site
+venv
+torch
