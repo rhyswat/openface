@@ -1,4 +1,7 @@
 build
+dist
+MANIFEST
+openface.egg-info
 _build
 plots
 work*
