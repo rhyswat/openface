@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 #
 # Example to classify faces.
 # Brandon Amos
@@ -40,7 +40,10 @@ from sklearn.pipeline import Pipeline
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
-from sklearn.grid_search import GridSearchCV
+try:
+    from sklearn.grid_search import GridSearchCV
+except:
+    from sklearn.model_selection import GridSearchCV
 from sklearn.mixture import GMM
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import GaussianNB
@@ -101,12 +104,13 @@ def getRep(imgPath, multiple=False):
 
 
 def train(args):
-    print("Loading embeddings.")
+    print("Loading embeddings from " + args.workDir)
     fname = "{}/labels.csv".format(args.workDir)
     labels = pd.read_csv(fname, header=None).as_matrix()[:, 1]
     labels = map(itemgetter(1),
                  map(os.path.split,
                      map(os.path.dirname, labels)))  # Get the directory.
+    labels = list(labels)
     fname = "{}/reps.csv".format(args.workDir)
     embeddings = pd.read_csv(fname, header=None).as_matrix()
     le = LabelEncoder().fit(labels)
@@ -167,7 +171,7 @@ def train(args):
 
     fName = "{}/classifier.pkl".format(args.workDir)
     print("Saving classifier to '{}'".format(fName))
-    with open(fName, 'w') as f:
+    with open(fName, 'wb') as f:
         pickle.dump((le, clf), f)
 
 
@@ -197,7 +201,7 @@ def infer(args, multiple=False):
                 print("Predict {} @ x={} with {:.2f} confidence.".format(person.decode('utf-8'), bbx,
                                                                          confidence))
             else:
-                print("Predict {} with {:.2f} confidence.".format(person.decode('utf-8'), confidence))
+                print("Predict {} with {:.2f} confidence.".format(str(person), confidence))
             if isinstance(clf, GMM):
                 dist = np.linalg.norm(rep - clf.means_[maxI])
                 print("  + Distance from the mean: {}".format(dist))
